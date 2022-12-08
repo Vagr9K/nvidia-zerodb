@@ -1,0 +1,19 @@
+[package]
+name = "nvidia-zerodb"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.66"
+gethostname = "0.4.1"
+log = "0.4.17"
+notify-rust = "4.6.0"
+pretty_env_logger = "0.4.0"
+rust-ini = "0.18.0"
+system_shutdown = "4.0.0"
+
+[build-dependencies]
+anyhow = "1.0.66"
+vergen = { version = "7.4.3", default-features = false, features = ["build", "rustc", "cargo", "si", "git"] }
