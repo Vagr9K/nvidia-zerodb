@@ -47,7 +47,7 @@ impl Config {
         };
 
         // Temperature section
-        let temp_conf_section = file_conf.section(Some("TEMPERATURE"));
+        let temp_conf_section = file_conf.section(Some("TEMPERATURES"));
         if let Some(temp_conf_section_data) = temp_conf_section {
             let max_temp_data = temp_conf_section_data.get("MAX_TEMP");
 
