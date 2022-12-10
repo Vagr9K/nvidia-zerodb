@@ -1,0 +1,9 @@
+[Unit]
+Description=0dB service for NVIDIA
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/nvidia-zerodb
+
+[Install]
+WantedBy=multi-user.target
