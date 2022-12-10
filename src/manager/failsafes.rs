@@ -5,6 +5,7 @@ use std::time::{Duration, Instant};
 pub struct Failsafes {
     shutdown_delay: Duration,
     last_fan_enable_error_time: Option<Instant>,
+    last_fan_disable_error_time: Option<Instant>,
 }
 
 impl Failsafes {
@@ -12,6 +13,7 @@ impl Failsafes {
         Failsafes {
             shutdown_delay: Duration::from_millis(shutdown_delay),
             last_fan_enable_error_time: None,
+            last_fan_disable_error_time: None,
         }
     }
 
@@ -56,24 +58,31 @@ impl Failsafes {
     }
 
     pub fn on_fan_disable_error(&mut self) {
-        log::warn!("Issuing a notification about failing to disable the fans.");
+        let current_time = Instant::now();
+        let last_time = self.last_fan_disable_error_time.get_or_insert(current_time);
 
-        let res = Notification::new()
-            .summary("nvidia-zerodb: Failure to disable fans.")
-            .body("nvidia-zerodb: Failed to disable fans due to an error. Check logs for details.")
-            .appname("nvidia-zerodb")
-            .timeout(0)
-            .show();
+        let time_diff = current_time.duration_since(*last_time);
 
-        if let Err(notification_err) = res {
-            log::error!(
-                "Failed to issue a notification about failing to disable the fans: {:?}",
-                notification_err
-            );
+        if time_diff == Duration::ZERO {
+            log::warn!("Issuing a notification about failing to disable the fans.");
+
+            let res = Notification::new()
+                .summary("nvidia-zerodb: Failure to disable fans.")
+                .body("nvidia-zerodb: Failed to disable fans due to an error. Check logs for details.")
+                .appname("nvidia-zerodb")
+                .timeout(0)
+                .show();
+
+            if let Err(notification_err) = res {
+                log::error!(
+                    "Failed to issue a notification about failing to disable the fans: {:?}",
+                    notification_err
+                );
+            }
         }
     }
 
     pub fn on_fan_disable_success(&mut self) {
-        // No-OP
+        self.last_fan_disable_error_time = None;
     }
 }
