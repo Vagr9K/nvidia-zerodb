@@ -76,6 +76,9 @@ impl Manager {
                 }
             } else {
                 log::error!("Failed to determine GPU temperature.");
+
+                log::warn!("Enabling GPU fans due to failure to read the GPU temperature.");
+                self.enable_fans();
             }
 
             // Wait for the next refresh
