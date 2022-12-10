@@ -688,7 +688,6 @@ dependencies = [
  "notify-rust",
  "pretty_env_logger",
  "rust-ini",
- "system_shutdown",
  "vergen",
 ]
 
@@ -1128,16 +1127,6 @@ dependencies = [
  "ntapi",
  "once_cell",
  "winapi",
-]
-
-[[package]]
-name = "system_shutdown"
-version = "4.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7bf59aec03436e30e37e56f226363623d7a9114a1358aae6835c3a6575d2fe7"
-dependencies = [
- "windows 0.43.0",
- "zbus",
 ]
 
 [[package]]

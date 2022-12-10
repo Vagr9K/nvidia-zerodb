@@ -1,4 +1,6 @@
+use anyhow::Context;
 use notify_rust::Notification;
+use std::process::Command;
 use std::time::{Duration, Instant};
 
 #[derive(Debug)]
@@ -45,11 +47,26 @@ impl Failsafes {
             log::error!(
                 "Failed to re-enable fans during recovery period. Shutting down the computer."
             );
-            let status = system_shutdown::force_shutdown();
 
-            if let Err(shutdown_err) = status {
-                log::error!("Failed to shutdown the computer: {:?}", shutdown_err);
-            }
+            // Run the shutdown command
+            let shutdown_res = Command::new("sudo")
+                .arg("shutdown")
+                .arg("now")
+                .output()
+                .context("Failed to execute system shutdown command.");
+
+            match shutdown_res {
+                Ok(res) => {
+                    if !res.status.success() {
+                        log::error!(
+                                "Failed to shutdown the computer. Command returned a non-zero exit code.",
+                            );
+                    }
+                }
+                Err(shutdown_err) => {
+                    log::error!("Failed to shutdown the computer: {:?}", shutdown_err);
+                }
+            };
         }
     }
 
