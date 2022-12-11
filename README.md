@@ -2,7 +2,7 @@
 
 A 0dB service for the `nvidia` driver.
 
-Since the zero RPM fan mode doesn't always properly work with the `nvidia` driver, even when the GPU BIOS supports it (e.g. Zotac RTX3080 AMP Holo). This service manually monitors GPU temperature via `nvidia-settings` and manually switches fan control from automatic to zero RPM, based on your configuration.
+Since the zero RPM fan mode doesn't always properly work with the `nvidia` driver, even when the GPU BIOS supports it (e.g. Zotac RTX 3080 AMP Holo). This service manually monitors GPU temperature via `nvidia-settings` and manually switches fan control from automatic to zero RPM, based on your configuration.
 
 ## WARNING
 
