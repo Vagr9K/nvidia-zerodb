@@ -11,21 +11,15 @@ backup=("etc/nvidia-zerodb.conf")
 depends=('sudo' 'nvidia-settings')
 makedepends=('cargo')
 provides=('nvidia-zerodb')
-source=("${pkgname}-${pkgver}.tar.gz::https://github.com/vagr9k/nvidia-zerodb/archive/v${pkgver}.tar.gz")
-sha256sums=('143baae497982597d81a5ea5eca8ab92bed93d447cac9401349ae0ea66f4260f')
+source=()
 
 build () {
-  cd "$srcdir/$pkgname-$pkgver"
-
   cargo build --locked --release --target-dir target
+  cp -R ../../assets/ .
 }
 
 package() {
-  cd "$srcdir/${pkgname}-${pkgver}"
-
   install -Dm755 target/release/nvidia-zerodb "${pkgdir}/usr/bin/nvidia-zerodb"
   install -Dm644 assets/nvidia-zerodb.conf "${pkgdir}/etc/nvidia-zerodb.conf"
-
-  mkdir -p "$pkgdir/usr/lib/systemd/system/"
-  cp assets/nvidia-zerodb.service "$pkgdir/usr/lib/systemd/system/nvidia-zerodb.service"
+  install -Dm755 assets/nvidia-zerodb.service "$pkgdir/usr/lib/systemd/user/nvidia-zerodb.service"
 }
