@@ -13,7 +13,7 @@ lto= true
 [dependencies]
 anyhow = "1.0.66"
 log = "0.4.17"
-notify-rust = "4.6.0"
+notify-rust = { version = "4.6.0", default-features = false, features = ["d"] }
 pretty_env_logger = "0.4.0"
 rust-ini = "0.18.0"
 signal-hook = "0.3.14"
