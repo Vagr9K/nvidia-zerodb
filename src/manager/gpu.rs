@@ -1,5 +1,4 @@
 use anyhow::{bail, Context, Result};
-use gethostname::gethostname;
 use std::process::Command;
 use std::str;
 
@@ -9,6 +8,8 @@ pub fn get_gpu_temp() -> Result<u64> {
 
     // Run the temperature read command
     let proc_res = Command::new("nvidia-settings")
+        .arg("-c")
+        .arg("0")
         .arg("-q")
         .arg("gpucoretemp")
         .arg("-t")
@@ -48,6 +49,8 @@ pub fn disable_fans() -> Result<()> {
     // Run the command for switching off the fans
     let proc_res = Command::new("sudo")
         .arg("nvidia-settings")
+        .arg("-c")
+        .arg("0")
         .arg("-a")
         .arg("[gpu:0]/GPUFanControlState=1")
         .arg("-a")
@@ -67,11 +70,7 @@ pub fn disable_fans() -> Result<()> {
         .context("Failed to convert fan disable command output to a string.")?;
 
     // Calculate the expected output
-    let hostname = gethostname();
-    let hostname_str = hostname
-        .to_str()
-        .context("Failed to convert hostname to a string.")?;
-    let expected_output = format!("\n  Attribute 'GPUFanControlState' ({hostname}:0[gpu:0]) assigned value 1.\n\n  Attribute 'GPUTargetFanSpeed' ({hostname}:0[fan:0]) assigned value 30.\n\n  Attribute 'GPUTargetFanSpeed' ({hostname}:0[fan:1]) assigned value 30.\n\n", hostname=hostname_str);
+    let expected_output = format!("\n  Attribute 'GPUFanControlState' ([gpu:0]) assigned value 1.\n\n  Attribute 'GPUTargetFanSpeed' ([fan:0]) assigned value 30.\n\n  Attribute 'GPUTargetFanSpeed' ([fan:1]) assigned value 30.\n\n",  );
 
     // Make sure that we got the expected output
     if out_string != expected_output {
@@ -91,6 +90,8 @@ pub fn enable_fans() -> Result<()> {
     // Run the command for switching fan contorl to vBIOS
     let proc_res = Command::new("sudo")
         .arg("nvidia-settings")
+        .arg("-c")
+        .arg("0")
         .arg("-a")
         .arg("[gpu:0]/GPUFanControlState=0")
         .arg("-t")
@@ -107,19 +108,13 @@ pub fn enable_fans() -> Result<()> {
         .context("Failed to convert fan disable command output to a string.")?;
 
     // Calculate the expected output
-    let hostname = gethostname();
-    let hostname_str = hostname
-        .to_str()
-        .context("Failed to convert hostname to a string.")?;
-    let expected_output = format!(
-        "\n  Attribute 'GPUFanControlState' ({}:0[gpu:0]) assigned value 0.\n\n",
-        hostname_str
-    );
+    let expected_output =
+        format!("\n  Attribute 'GPUFanControlState' ([gpu:0]) assigned value 0.\n\n",);
 
     // Make sure that we got the expected output
     if out_string != expected_output {
         bail!(
-            "Unexpected output when trying to disable fans: {}",
+            "Unexpected output when trying to enable fans: {}",
             out_string
         )
     };
