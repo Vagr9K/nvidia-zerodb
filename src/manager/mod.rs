@@ -2,6 +2,8 @@ mod failsafes;
 mod gpu;
 
 use failsafes::Failsafes;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 
 use std::{thread, time};
 
@@ -37,7 +39,7 @@ impl Manager {
         }
     }
 
-    pub fn start(&mut self) -> ! {
+    pub fn start(&mut self, term_signal: Arc<AtomicBool>) -> () {
         log::info!("Starting GPU manager.");
         log::info!("GPU manager settings: {:?}", self);
 
@@ -48,7 +50,8 @@ impl Manager {
         // This comes from an nvidia-settings limitation, where 2 or more instant commands may end up not registering
         thread::sleep(time::Duration::from_millis(1000));
 
-        loop {
+        // Loop while we're supposed to run
+        while !term_signal.load(Ordering::Relaxed) {
             // Get current temperature
             let temp_res = gpu::get_gpu_temp();
 
@@ -84,6 +87,10 @@ impl Manager {
             // Wait for the next refresh
             thread::sleep(time::Duration::from_millis(self.refresh_delay));
         }
+
+        // Re-enable fans once done
+        log::warn!("Finished running fan manager. Re-enabling fans.");
+        self.enable_fans();
     }
 
     fn enable_fans(&mut self) {
@@ -117,6 +124,18 @@ impl Manager {
             self.failsafe.on_fan_disable_success();
 
             self.fan_state = FanState::Idle;
+        }
+    }
+}
+
+impl Drop for Manager {
+    fn drop(&mut self) {
+        log::warn!("Re-enabling GPU fan control as part of the cleanup process for Manager.");
+
+        // Make absolutely sure we re-enable the fans
+        while self.fan_state != FanState::Cooling {
+            self.enable_fans();
+            thread::sleep(time::Duration::from_millis(self.refresh_delay));
         }
     }
 }
