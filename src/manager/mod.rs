@@ -130,10 +130,12 @@ impl Manager {
 
 impl Drop for Manager {
     fn drop(&mut self) {
-        log::warn!("Re-enabling GPU fan control as part of the cleanup process for Manager.");
-
         // Make absolutely sure we re-enable the fans
         while self.fan_state != FanState::Cooling {
+            log::warn!(
+                "Trying to re-enable GPU fan control as part of the cleanup process for Manager."
+            );
+
             self.enable_fans();
             thread::sleep(time::Duration::from_millis(self.refresh_delay));
         }
