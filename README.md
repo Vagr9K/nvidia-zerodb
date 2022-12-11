@@ -32,11 +32,14 @@ SHUTDOWN_DELAY = 30000
 
 ## Running
 
-Execute `systemctl start nvidia-zerodb.service` to start the daemon.
+Due to `nvidia-settings` requiring a running instance of X.org server, it doesn't make sense to run the service as a root systemd service. On top of that, the additional functionality of D-Bus based desktop notifications depends on the service having access to user level D-Bus environment variables. That being said, the service will invoke `sudo` when running the actual fan control commands (since `nvidia-settings` requires it) so make sure that your user is whitelisted in `sudoers`.
 
-Optionally you can execute `systemctl enable nvidia-zerodb.service` to automatically start the service after a reboot.
+Execute `systemctl --user start nvidia-zerodb.service` to start the daemon.
 
-Make sure to do a test run and check the logs with `journalctl --unit nvidia-zerodb.service` before enabling the service.
+Optionally you can execute `systemctl --user enable nvidia-zerodb.service` to automatically start the service after a reboot.
+
+Make sure to do a test run and check the logs with `journalctl --user --unit nvidia-zerodb.service` before enabling the service.
+
 
 ## License
 
